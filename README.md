@@ -1,2 +1,2 @@
-# truly_native
-Code for the truly native Kaggle competition
+Scripts for the Kaggle Truly Native contest
+-------------------------------------------
