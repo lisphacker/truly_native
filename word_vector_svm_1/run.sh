@@ -1,12 +1,15 @@
 #!/bin/sh
 
-export PYTHONPATH=$PYTHONPATH:/home/gautham/work/kaggle/truly_native/scripts
+#echo GENERATING SUBSETS
+#gen_subset.py -n-train 100 -n-test 10000
 
-echo GENERATING SUBSETS
-../gen_subset.py -n-train 30000 -n-test 3000
+#echo TRAINING
+#time run.py -model WordVectorSVM -train
 
-echo TRAINING
-./train.py -in-train train_subset.pickle
+#echo TESTING
+#time run.py -model WordVectorSVM -test
 
-echo TESTING
-./test.py -in-test test_subset.pickle
+echo PREDICTING
+time run.py -model WordVectorSVM -predict \
+    -predict-in-file ../../data/sampleSubmissionOriginal.pickle \
+    -predict-out-file ../../data/sampleSubmission.pickle 

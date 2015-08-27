@@ -5,14 +5,15 @@ import re
 import sys
 import random
 import argparse
-import cfg
+import models.config as cfg
+from models import Model
 
 def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-in-train', type=str, default='train.pickle', help='Input training set dictionary')
-    parser.add_argument('-out-train', type=str, default='train_subset.pickle', help='Output training set dictionary')
-    parser.add_argument('-out-test', type=str, default='test_subset.pickle', help='Output training set dictionary')
+    parser.add_argument('-out-train', type=str, default=Model.default_train_file, help='Output training set dictionary')
+    parser.add_argument('-out-test', type=str, default=Model.default_test_file, help='Output training set dictionary')
     parser.add_argument('-n-train', type=int, default=10000, help='Number of training samples.')
     parser.add_argument('-n-test', type=int, default=100, help='Number of test samples.')
 

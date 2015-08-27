@@ -28,6 +28,7 @@ def main():
     files = []
     class_vector_ref = np.empty(len(file_classes), dtype=np.float32)
     
+    print 'Reading files'    
     for i, (filename, sponsored) in enumerate(file_classes.iteritems()):
         with zin.open(filename, 'r') as f:
             files.append(f.read())
@@ -36,12 +37,15 @@ def main():
     with open(args.in_model_param, 'r') as pf:
         vocabulary, svc = pickle.load(pf)
     
+    print 'Generating word vector'
     cv = CountVectorizer(input='content', strip_accents='ascii', stop_words='english', lowercase=False,
                          vocabulary=vocabulary, dtype=np.float32)
     docmat = cv.transform(files)
 
+    print 'Predicting'
     class_vector = svc.predict(docmat)
 
+    print 'Evaluating results'
     total_count = 0
     match_count = 0
     for ref, test in zip(class_vector_ref, class_vector):

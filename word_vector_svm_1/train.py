@@ -8,12 +8,11 @@ from sklearn.svm import SVC
 import numpy as np
 import cfg
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-in-train', type=str, default='train.pickle', help='Input training set dictionary')
-    parser.add_argument('-out-model-param', type=str, default='model_param.pickle', help='Model parameters')
+    parser.add_argument('-model-param', type=str, default='model_param.pickle', help='Model parameters')
 
     return parser.parse_args()
 
@@ -27,15 +26,18 @@ def main():
 
     files = []
     class_vector = np.empty(len(file_classes), dtype=np.float32)
-    
+
+    print 'Reading files'    
     for i, (filename, sponsored) in enumerate(file_classes.iteritems()):
         with zin.open(filename, 'r') as f:
             files.append(f.read())
         class_vector[i] = float(sponsored)
 
+    print 'Generating word vector'
     cv = CountVectorizer(input='content', strip_accents='ascii', stop_words='english', lowercase=False, dtype=np.float32)
     docmat = cv.fit_transform(files)
 
+    print 'Fitting SVM'
     svc = SVC()
     svc.fit(docmat, class_vector)
 
