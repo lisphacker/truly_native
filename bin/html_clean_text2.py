@@ -29,7 +29,7 @@ NodeProp = namedtuple('NodeProp', ['tag', 'attributes', 'skip_text'])
 
 class HTMLCleaner:
     nodeprops = {
-        'p':NodeProp('p', ['class'], True),
+        'p':NodeProp('p', ['class'], False),
         'img':NodeProp('img', ['class', 'src', 'data-img'], False),
         'link':NodeProp('link', ['href'], False),
         'a':NodeProp('a', ['title', 'href', 'class'], False),
@@ -76,11 +76,11 @@ class HTMLCleaner:
         return ' '.join(map(str.strip, ' '.join(text_list).split())).lower()
 
 def clean(name, s):
-    return HTMLCleaner(s, True).clean()
+    return HTMLCleaner(s).clean()
     
 def main():
     html_zip_file = '/home/gautham/work/kaggle/truly_native/data/html.zip'
-    cleaned_html_zip_file = '/home/gautham/work/kaggle/truly_native/data/html_cleaned2_no_text.zip'
+    cleaned_html_zip_file = '/home/gautham/work/kaggle/truly_native/data/html_cleaned2.zip'
 
     zin = zipfile.ZipFile(html_zip_file, 'r')
     zout = zipfile.ZipFile(cleaned_html_zip_file, 'w', zipfile.ZIP_DEFLATED, True)
