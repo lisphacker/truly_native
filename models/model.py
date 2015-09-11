@@ -5,7 +5,7 @@ import pickle
 from itertools import imap
 
 import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 import config
 
@@ -29,6 +29,8 @@ class Model(object):
 
         self.__predict_classes_in_filename = kwargs.get('predict_in_file', None)
         self.__predict_classes_out_filename = kwargs.get('predict_out_file', None)
+        
+        self.__use_tfidf = kwargs.get('use_tfidx', False)
         
         self.__model_param_filename = kwargs.get('model_param_file', self.default_model_param_file)
 
@@ -103,6 +105,9 @@ class Model(object):
                                  dtype=self.__dtype,
                                  vocabulary=self.__vocabulary)
             self.__docmat = cv.transform(self.__contents)
+
+        if self.__use_tfidf:
+            self.__docmat = TfidfTransformer().fit_transform(self.__docmat)
 
     def get_document_matrix(self):
         return self.__docmat

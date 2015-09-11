@@ -47,10 +47,13 @@ def main():
             'predict_in_file="{predict_in_file}", '
             'predict_out_file="{predict_out_file}", '
             'model_param_file="{model_param_file}"'
+            '{other_params}'
             ')').format(model_name=args.model,
                         train_file=args.train_file, test_file=args.test_file,
                         predict_in_file=args.predict_in_file, predict_out_file=args.predict_out_file,
-                        model_param_file=args.model_param)
+                        model_param_file=args.model_param,
+                        other_params=(', ' + args.model_params) if args.model_params is not None else '')
+    print 'Model =', expr
 
     if args.train:
         model = eval(expr, globals(), locals())
