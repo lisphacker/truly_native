@@ -6,9 +6,10 @@ from itertools import imap
 
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.feature_selection import VarianceThreshold
 
 import config
-
+from models.util import *
 
 class Model(object):
     __metaclass__ = ABCMeta
@@ -31,6 +32,10 @@ class Model(object):
         self.__predict_classes_out_filename = kwargs.get('predict_out_file', None)
         
         self.__use_tfidf = kwargs.get('use_tfidx', False)
+        self.__tfidf_transformer = None
+        self.__use_variance_threshold = kwargs.get('use_variance_threshold', False)
+        self.__variance_threshold = 0.8
+        self.__variance_threshold_selector = None
         
         self.__model_param_filename = kwargs.get('model_param_file', self.default_model_param_file)
 
@@ -41,7 +46,10 @@ class Model(object):
         self.__is_file_handle = True
         self.__class_vector = []
 
-        self.__vocabulary = None
+        if 'vocabulary_file' in kwargs:
+            self.__vocabulary = sorted(load_pickle(kwargs['vocabulary_file']))
+        else:
+            self.__vocabulary = None
         self.__docmat = None
         
     def __load(self, filename, use_file_handles):
@@ -106,8 +114,23 @@ class Model(object):
                                  vocabulary=self.__vocabulary)
             self.__docmat = cv.transform(self.__contents)
 
-        if self.__use_tfidf:
-            self.__docmat = TfidfTransformer().fit_transform(self.__docmat)
+        if self.__tfidf_transformer is None:
+            if self.__use_tfidf:
+                self.__tfidf_transformer = TfidfTransformer()
+                self.__docmat = self.__tfidf_transformer.fit_transform(self.__docmat)
+        else:
+            self.__docmat = self.__tfidf_transformer.transform(self.__docmat)
+
+        print 'BEFORE', self.__docmat.shape
+        if self.__variance_threshold_selector is None:
+            if self.__use_variance_threshold:
+                self.__variance_threshold_selector = VarianceThreshold(self.__variance_threshold *
+                                                                       (1.0 - self.__variance_threshold))
+                self.__docmat = self.__variance_threshold_selector.fit_transform(self.__docmat)
+        else:
+            self.__docmat = self.__variance_threshold_selector.transform(self.__docmat)
+        print 'AFTER ', self.__docmat.shape
+            
 
     def get_document_matrix(self):
         return self.__docmat
@@ -120,11 +143,13 @@ class Model(object):
 
     @abstractmethod
     def getstate(self):
-        return {'vocabulary':self.__vocabulary}
+        return {'vocabulary':self.__vocabulary,
+                'var_thresh_sel':self.__variance_threshold_selector}
 
     @abstractmethod
     def setstate(self, state):
         self.__vocabulary = state['vocabulary']
+        self.__variance_threshold_selector = state['var_thresh_sel']
 
     def save(self):
         if self.verbose:
